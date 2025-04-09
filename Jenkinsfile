@@ -19,13 +19,11 @@ pipeline {
         stage('Deploy to Green Environment') {
     steps {
         script {
-            // Try to stop and remove container if it exists (ignore error if not)
             bat '''
                 docker stop green || echo "Green container not running"
                 docker rm green || echo "Green container not found"
+                docker run -d --name green -p 8084:80 my-bluegreen-app
             '''
-            // Now start the new green container
-            bat "docker run -d --name green -p ${GREEN_PORT}:80 ${IMAGE_NAME}"
         }
     }
 }
