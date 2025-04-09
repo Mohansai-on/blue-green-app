@@ -19,11 +19,11 @@ pipeline {
         stage('Deploy to Green Environment') {
             steps {
                 script {
-                    bat '''
-                        docker stop green || echo "Green container not running"
-                        docker rm green || echo "Green container not found"
-                        docker run -d --name green -p %GREEN_PORT%:80 %IMAGE_NAME%
-                    '''
+                    bat """
+                        docker stop green || echo Green container not running
+                        docker rm green || echo Green container not found
+                        docker run -d --name green -p ${GREEN_PORT}:80 ${IMAGE_NAME}
+                    """
                 }
             }
         }
@@ -33,11 +33,16 @@ pipeline {
                 script {
                     def blueContainer = bat(script: 'docker ps -q -f name=blue', returnStdout: true).trim()
                     if (blueContainer) {
-                        bat "docker stop blue || echo Blue container not running"
-                        bat "docker rm blue || echo Blue container not found"
+                        echo "Stopping and removing old blue container..."
+                        def stopStatus = bat(script: 'docker stop blue', returnStatus: true)
+                        def rmStatus = bat(script: 'docker rm blue', returnStatus: true)
+                        if (stopStatus != 0 || rmStatus != 0) {
+                            echo "There was an issue stopping/removing blue, but continuing..."
+                        }
                     } else {
                         echo "No existing blue container to stop/remove"
                     }
+
                     bat "docker rename green blue"
                 }
             }
