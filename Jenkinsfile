@@ -29,15 +29,16 @@ pipeline {
         }
 
         stage('Switch Traffic') {
-            steps {
-                script {
-                    def blueContainer = bat(script: "docker ps -q -f name=blue", returnStdout: true).trim()
-                    if (blueContainer) {
-                        bat "docker stop blue && docker rm blue"
-                    }
-                    bat "docker rename green blue"
-                }
+    steps {
+        script {
+            def blueContainer = bat(script: "docker ps -q -f name=blue", returnStdout: true).trim()
+            if (blueContainer) {
+                bat "docker stop blue || echo Blue container not running"
+                bat "docker rm blue || echo Blue container not found"
+            } else {
+                echo "No existing blue container to stop/remove"
             }
+            bat "docker rename green blue"
         }
     }
 }
