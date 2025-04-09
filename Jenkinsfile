@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         IMAGE_NAME = "my-bluegreen-app"
-        BLUE_PORT = "8084"
-        GREEN_PORT = "8085"
+        BLUE_PORT = "8086"
+        GREEN_PORT = "8087"
     }
 
     stages {
@@ -17,16 +17,16 @@ pipeline {
         }
 
         stage('Deploy to Green Environment') {
-    steps {
-        script {
-            bat '''
-                docker stop green || echo "Green container not running"
-                docker rm green || echo "Green container not found"
-                docker run -d --name green -p 8084:80 my-bluegreen-app
-            '''
+            steps {
+                script {
+                    bat """
+                        docker stop green || echo "Green container not running"
+                        docker rm green || echo "Green container not found"
+                        docker run -d --name green -p ${GREEN_PORT}:80 ${IMAGE_NAME}
+                    """
+                }
+            }
         }
-    }
-}
 
         stage('Switch Traffic') {
             steps {
