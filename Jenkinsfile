@@ -13,7 +13,7 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    docker.image('my-bluegreen-app').run('-d -p 8080:80')
+                    docker.image('my-bluegreen-app').run('-d -p 8084:80')
                 }
             }
         }
